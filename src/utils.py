@@ -1,7 +1,7 @@
 import sys
 from functools import reduce
 import numpy as np
-
+import requests
 
 from torch.nn.modules.module import _addindent
 
@@ -83,3 +83,21 @@ def to_local_average_cents(salience, center=None, thred=0.0):
                          range(salience.shape[0])])
 
     raise Exception("label should be either 1d or 2d ndarray")
+
+
+def download_model(url: str, dest_path: str) -> None:
+    """
+    Download the model from a URL if it doesn't exist locally.
+    
+    Args:
+        url (str): The URL to download the model from.
+        dest_path (str): The local path to save the downloaded model.
+    """
+    print(f"Downloading model from {url} to {dest_path}")
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    with open(dest_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    print("Download complete")
