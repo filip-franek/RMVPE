@@ -1,7 +1,8 @@
 import os
 import torch
+from torch import nn
 
-from src import download_model, MIR1K, SAMPLE_RATE, WINDOW_LENGTH # to_local_average_cents
+from src import download_model, MIR1K, E2E, SAMPLE_RATE, WINDOW_LENGTH # to_local_average_cents
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -13,7 +14,8 @@ if not os.path.exists(model_path):
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
     download_model(MODEL_DOWNLOAD_URL, model_path)
 
-model = torch.load(model_path, map_location=torch.device('cpu'))
+model = nn.DataParallel(E2E(int(hop_length / 1000 * SAMPLE_RATE), 4, 1, (2, 2))).to(device)
+# model = torch.load(model_path, map_location=torch.device('cpu'))
 # model.eval()
 # model.module
 
